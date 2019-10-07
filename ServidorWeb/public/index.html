@@ -3,9 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi servidor web</title>
+  <title>servidor web</title>
 </head>
 <body>
-  <h1>HOLA, mi servidor web funciona</h1>
+  <h1>Practica numero 2</h1>
+  <h3>HOLA, este servidor se comunica con el microcontrolador y con la pagina web</h3>
+  <p>Por defecto estan estos valores: </p>
+  <ul style="display: inline-block">
+    <li>Led</li>
+    <li>id : 0</li>
+    <li>status: 0</li>
+  </ul>
+  <ul style="display: inline-block">
+    <li>Buzzer</li>
+    <li>id : 1</li>
+    <li>status: 0</li>
+    <li>frecuency: 440</li>
+  </ul>
+  <ul style="display: inline-block">
+    <li>Sensor</li>
+    <li>id : 2</li>
+    <li>status: 0</li>
+    <li>Min distance: 50</li>
+  </ul>
+  <p>
+    estos valores se definen en sus respectivos controladores, 
+    en los cuales son declarados como objetos 
+    debido a que no estamos haciendo uso de una base de datos
+  </p>
+  <p>Cada elemento tienen sus respectivas rutas, las cuales son: </p>
+  <ul>
+    <li>Led</li>
+    <li>/led/ -> esta muestra la informacion del elemento, GET</li>
+    <li>
+      /led/status -> esta cambia el valor de la variable status, 
+      no recibe parametros y devuelve el texto encendido o apagado, segun el caso, PUT
+    </li>
+  </ul>
+  <ul>
+    <li>Buzzer</li>
+    <li>/buzzer/ -> esta muestra la informacion del elemento, GET</li>
+    <li>
+      /buzzer/status -> esta cambia el valor de la variable status,
+      no recibe parametros y devuelve el texto encendido o apagado, segun el caso, PUT
+    </li>
+    <li>
+      /buzzer/frecuency -> esta cambia el valor de la variable frecuency, 
+      recibe un archivo JSON con la variable frecuency y devuelve el texto exito, PUT
+    </li>
+  </ul>
+  <ul style="display: inline-block">
+    <li>Sensor</li>
+    <li>/sensor/ -> esta muestra la informacion del elemento, GET</li>
+    <li>
+      /sensor/status -> esta cambia el valor de la variable status, 
+      no recibe parametros y devuelve el texto encendido o apagado, segun el caso, PUT
+    </li>
+    <li>
+      /sensor/distance -> esta cambia el valor de la variable distance, 
+      recibe un archivo JSON con la variable distance y devuelve el texto exito, PUT
+    </li>
+  </ul>
+  <p>
+    estos valores se definen en sus respectivos archivos de rutas en la carpeta routes
+  </p>
 </body>
 </html>

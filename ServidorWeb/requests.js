@@ -13,7 +13,7 @@ class Requests {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Content-Length': data.length
+            'Content-Length': this.data.length
           }
         }
     }

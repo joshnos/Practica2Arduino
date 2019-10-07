@@ -13,13 +13,8 @@ exports.getBuzzer = function(req, res) {
 }
 
 exports.setStatus = function(req, res) {
-    if(buzzer.status === 0) {
-        buzzer.changeStatus(1);
-        res.send('encendido');
-    }else {
-        buzzer.changeStatus(0);
-        res.send('apagado');
-    }
+    buzzer.changeStatus(req.body.status);
+    res.send('exito');
 }
 
 exports.setFrecuency = function(req, res) {

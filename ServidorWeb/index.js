@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
+var cors = require('cors')
 
+app.use(cors())
 var bodyParser = require('body-parser');
 
 var buzzerRoutes = require('./routes/buzzerRoutes');

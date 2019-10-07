@@ -1,5 +1,16 @@
-<div>
-  <h3>Alarma</h3>
-  <button (click)="turnOn()">Encender</button>
-  <button (click)="turnOff()">Apagar</button>
+<div class="container tm-container-gallery">
+  <div class="row">
+    <div class="text-center col-12">
+        <h2 class="tm-text-primary tm-section-title mb-4">Alarma</h2>
+        <p class="mx-auto tm-section-desc">
+          En esta seccion puedes encender o apagar la alarma de manera remota.
+        </p>
+    </div>            
+  </div>
+  <div class="row">
+      <div class="buttons col-6">
+        <button class="btn tm-btn-submit" (click)="turnOn()">Encender</button>
+        <button class="btn tm-btn-submit" (click)="turnOff()">Apagar</button>    
+      </div>        
+    </div>
 </div>

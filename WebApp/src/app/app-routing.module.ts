@@ -5,9 +5,11 @@ import { AboutComponent } from './components/about/about.component';
 import { AlarmComponent } from './components/alarm/alarm.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { IntegrantsComponent } from './components/integrants/integrants.component';
+import { WrapperComponent } from './components/wrapper/wrapper.component';
 
 const routes: Routes = [
-  { path: '', component: AboutComponent },
+  { path: '', component: WrapperComponent },
+  { path: 'about', component: AboutComponent },
   { path: 'alarm', component: AlarmComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'integants', component: IntegrantsComponent }

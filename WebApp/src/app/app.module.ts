@@ -9,8 +9,9 @@ import { AboutComponent } from './components/about/about.component';
 import { AlarmComponent } from './components/alarm/alarm.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { IntegrantsComponent } from './components/integrants/integrants.component';
-import { WrapperComponent } from './components/core/wrapper/wrapper.component';
-import { SidebarComponent } from './components/core/sidebar/sidebar.component';
+import { WrapperComponent } from './components/wrapper/wrapper.component';
+import { NavBarComponent } from './components/nav-bar/nav-bar.component';
+import { HomeComponent } from './components/home/home.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { SidebarComponent } from './components/core/sidebar/sidebar.component';
     SettingsComponent,
     IntegrantsComponent,
     WrapperComponent,
-    SidebarComponent
+    NavBarComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,

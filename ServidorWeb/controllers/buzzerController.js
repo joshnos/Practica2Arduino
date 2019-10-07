@@ -1,5 +1,7 @@
 const Buzzer = require('../models/buzzer');
+const Requests = require('../requests');
 
+requests = new Requests();
 buzzer = new Buzzer(1, 0, 440);
 
 exports.getBuzzer = function(req, res) {
@@ -22,5 +24,6 @@ exports.setStatus = function(req, res) {
 
 exports.setFrecuency = function(req, res) {
     buzzer.changeFrecuency(req.body.frecuency);
+    requests.put(req.body, "/buzzer/frecuency");
     res.send('exito');
 }

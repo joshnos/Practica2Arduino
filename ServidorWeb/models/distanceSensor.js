@@ -1,7 +1,8 @@
 class DistanceSensor {
-    constructor(id, minDistance, status) {
+    constructor(id, distance, limit, status) {
         this.id = id;
-        this.minDistance = minDistance;
+        this.distance = distance;
+        this.limit = limit;
         this.status = status;
     }
 
@@ -9,8 +10,12 @@ class DistanceSensor {
         this.status = status;
     }
 
-    changeMinDistance(minDistance) {
-        this.minDistance = minDistance;
+    changedistance(distance) {
+        this.distance = distance;
+    }
+
+    changeLimit(limit) {
+        this.limit = limit;
     }
 }
 

@@ -5,6 +5,7 @@ const controller = require('../controllers/distanceSensorController');
 
 router.get('/', controller.getSensor);
 router.put('/status', controller.setStatus);
-router.put('/distance', controller.setMinDistance);
+router.put('/limit', controller.setLimit);
+router.put('/distance', controller.setdistance);
 
 module.exports = router;

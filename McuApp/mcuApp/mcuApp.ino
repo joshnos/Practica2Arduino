@@ -24,9 +24,10 @@ struct Buzzer {
 struct sensor {
   byte id;
   byte trigGpio;
-  byte trigStatus;
   byte echoGpio;
-  byte echoStatus;
+  byte distance;
+  byte limit;
+  byte status;
 } sensor_resource;
 
 const char* wifi_ssid = "cowork.space";
@@ -37,22 +38,23 @@ ESP8266WebServer http_rest_server(HTTP_REST_PORT);
 void init_led_resource() {
     led_resource.id = 0;
     led_resource.gpio = 1;
-    led_resource.status = LOW;
+    led_resource.status = 0;
 }
 
 void init_buzzer_resource() {
   buzzer_resource.id = 1;
   buzzer_resource.gpio = 16;
-  buzzer_resource.status = LOW;
+  buzzer_resource.status = 0;
   buzzer_resource.frecuency = 440;
 }
 
 void init_sensor_resource() {
   sensor_resource.id = 2;
   sensor_resource.trigGpio = 0;
-  sensor_resource.trigStatus = LOW;
   sensor_resource.echoGpio = 2;
-  sensor_resource.echoStatus = LOW;
+  sensor_resource.distance = 500;
+  sensor_resource.limit = 50;
+  sensor_resource.status = 0;
 }
 
 
@@ -72,76 +74,106 @@ int init_wifi() {
     return WiFi.status(); // return the WiFi connection status
 }
 
-void get_leds() {
-    StaticJsonBuffer<200> jsonBuffer;
-    JsonObject& jsonObj = jsonBuffer.createObject();
-    char JSONmessageBuffer[200];
-
-    if (led_resource.id == 0)
-        http_rest_server.send(204);
-    else {
-        jsonObj["id"] = led_resource.id;
-        jsonObj["gpio"] = led_resource.gpio;
-        jsonObj["status"] = led_resource.status;
-        jsonObj.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-        http_rest_server.send(200, "application/json", JSONmessageBuffer);
-    }
+void set_sensor_status(JsonObject& jsonBody) { 
+    led_resource.status = jsonBody["status"];
 }
 
-void json_to_resource(JsonObject& jsonBody) {
-    int id, gpio, status;
-
-    id = jsonBody["id"];
-    gpio = jsonBody["gpio"];
-    status = jsonBody["status"];
-
-    Serial.println(id);
-    Serial.println(gpio);
-    Serial.println(status);
-
-    led_resource.id = id;
-    led_resource.gpio = gpio;
-    led_resource.status = status;
+void set_buffer_frecuency(JsonObject& jsonBody) { 
+    buzzer_resource.frecuency = jsonBody["frecuency"];
 }
 
-void post_put_leds() {
+void set_sensor_limit(JsonObject& jsonBody) { 
+    sensor_resource.limit = jsonBody["limit"];
+}
+
+void put_alarm() {
     StaticJsonBuffer<500> jsonBuffer;
     String post_body = http_rest_server.arg("plain");
     Serial.println(post_body);
 
     JsonObject& jsonBody = jsonBuffer.parseObject(http_rest_server.arg("plain"));
-
-    Serial.print("HTTP Method: ");
-    Serial.println(http_rest_server.method());
     
     if (!jsonBody.success()) {
         Serial.println("error in parsin json body");
         http_rest_server.send(400);
     }
     else {   
-        if (http_rest_server.method() == HTTP_POST) {
-            if ((jsonBody["id"] != 0) && (jsonBody["id"] != led_resource.id)) {
-                json_to_resource(jsonBody);
-                http_rest_server.sendHeader("Location", "/leds/" + String(led_resource.id));
-                http_rest_server.send(201);
-                pinMode(led_resource.gpio, OUTPUT);
-            }
-            else if (jsonBody["id"] == 0)
-              http_rest_server.send(404);
-            else if (jsonBody["id"] == led_resource.id)
-              http_rest_server.send(409);
-        }
-        else if (http_rest_server.method() == HTTP_PUT) {
-            if (jsonBody["id"] == led_resource.id) {
-                json_to_resource(jsonBody);
-                http_rest_server.sendHeader("Location", "/leds/" + String(led_resource.id));
-                http_rest_server.send(200);
-                digitalWrite(led_resource.gpio, led_resource.status);
-            }
-            else
-              http_rest_server.send(404);
+        if (http_rest_server.method() == HTTP_PUT) {
+            set_sensor_status(jsonBody);
+            http_rest_server.send(200);
+        } else {
+            http_rest_server.send(404);
         }
     }
+}
+
+void put_frecuency() {
+    StaticJsonBuffer<500> jsonBuffer;
+    String post_body = http_rest_server.arg("plain");
+    Serial.println(post_body);
+
+    JsonObject& jsonBody = jsonBuffer.parseObject(http_rest_server.arg("plain"));
+    
+    if (!jsonBody.success()) {
+        Serial.println("error in parsin json body");
+        http_rest_server.send(400);
+    }
+    else {   
+        if (http_rest_server.method() == HTTP_PUT) {
+            set_buffer_frecuency(jsonBody);
+            http_rest_server.send(200);
+        } else {
+            http_rest_server.send(404);
+        }
+    }
+}
+
+void put_limit() {
+    StaticJsonBuffer<500> jsonBuffer;
+    String post_body = http_rest_server.arg("plain");
+    Serial.println(post_body);
+
+    JsonObject& jsonBody = jsonBuffer.parseObject(http_rest_server.arg("plain"));
+    
+    if (!jsonBody.success()) {
+        Serial.println("error in parsin json body");
+        http_rest_server.send(400);
+    }
+    else {   
+        if (http_rest_server.method() == HTTP_PUT) {
+            set_sensor_limit(jsonBody);
+            http_rest_server.send(200);
+        } else {
+            http_rest_server.send(404);
+        }
+    }
+}
+
+void turnOnAlarm() {
+  tone(buzzer_resource.gpio, buzzer_resource.frecuency);
+  digitalWrite ( led_resource.gpio, HIGH) ;
+}
+
+void turonOffAlarm() {
+  noTone(buzzer_resource.gpio);
+  digitalWrite( led_resource.gpio, LOW) ;
+}
+
+void sensor() {
+  long duration;
+  digitalWrite(sensor_resource.trigGpio, LOW);        
+  delayMicroseconds(2);              
+  digitalWrite(sensor_resource.trigGpio, HIGH);       
+  delayMicroseconds(10);             
+  digitalWrite(sensor_resource.trigGpio, LOW);        
+  duration = pulseIn(sensor_resource.echoGpio, HIGH) ;
+  sensor_resource.distance = duration / 2 / 29.1  ;           
+  if ((sensor_resource.distance < sensor_resource.limit) && (sensor_resource.status == 1)) {
+    turnOnAlarm();
+  } else {
+    turonOffAlarm();
+  }
+  delay (500) ;         
 }
 
 void config_rest_server_routing() {
@@ -149,9 +181,10 @@ void config_rest_server_routing() {
         http_rest_server.send(200, "text/html",
             "Welcome to the ESP8266 REST Web Server");
     });
-    http_rest_server.on("/leds", HTTP_GET, get_leds);
-    http_rest_server.on("/leds", HTTP_POST, post_put_leds);
-    http_rest_server.on("/leds", HTTP_PUT, post_put_leds);
+    http_rest_server.on("/alarm/on", HTTP_PUT, put_alarm);
+    http_rest_server.on("/alarm/off", HTTP_PUT, put_alarm);
+    http_rest_server.on("/buzzer/frecuency", HTTP_PUT, put_frecuency);
+    http_rest_server.on("/sensor/limit", HTTP_PUT, put_limit);
 }
 
 void setup() {
@@ -178,4 +211,5 @@ void setup() {
 
 void loop() {
   http_rest_server.handleClient();
+  sensor();
 }

@@ -9,41 +9,44 @@
 #define MAX_WIFI_INIT_RETRY 50
 
 struct Led {
-    byte id;
-    byte gpio;
-    byte status;
-} led_resource;
+    int id;
+    int gpio;
+    int status;
+};
+Led led_resource;
 
 struct Buzzer {
-  byte id;
-  byte gpio;
-  byte status;
-  byte frecuency;
-} buzzer_resource;
+  int id;
+  int gpio;
+  int status;
+  int frecuency;
+}; 
+Buzzer buzzer_resource;
 
-struct sensor {
-  byte id;
-  byte trigGpio;
-  byte echoGpio;
-  byte distance;
-  byte limit;
-  byte status;
-} sensor_resource;
+struct Sensor {
+  int id;
+  int trigGpio;
+  int echoGpio;
+  int distance;
+  int limit;
+  int status;
+};
+Sensor sensor_resource;
 
-const char* wifi_ssid = "cowork.space";
-const char* wifi_passwd = "coworkspaces10mb";
+const char* wifi_ssid = "AndroidAP70C0";
+const char* wifi_passwd = "ukpr7689";
 
 ESP8266WebServer http_rest_server(HTTP_REST_PORT);
 
 void init_led_resource() {
     led_resource.id = 0;
-    led_resource.gpio = 1;
+    led_resource.gpio = 16;
     led_resource.status = 0;
 }
 
 void init_buzzer_resource() {
   buzzer_resource.id = 1;
-  buzzer_resource.gpio = 16;
+  buzzer_resource.gpio = 4;
   buzzer_resource.status = 0;
   buzzer_resource.frecuency = 440;
 }
@@ -53,7 +56,7 @@ void init_sensor_resource() {
   sensor_resource.trigGpio = 0;
   sensor_resource.echoGpio = 2;
   sensor_resource.distance = 500;
-  sensor_resource.limit = 50;
+  sensor_resource.limit = 30;
   sensor_resource.status = 0;
 }
 
@@ -99,7 +102,7 @@ void put_alarm() {
     }
     else {   
         if (http_rest_server.method() == HTTP_PUT) {
-            set_sensor_status(jsonBody);
+            sensor_resource.status = jsonBody["status"];
             http_rest_server.send(200);
         } else {
             http_rest_server.send(404);
@@ -120,7 +123,7 @@ void put_frecuency() {
     }
     else {   
         if (http_rest_server.method() == HTTP_PUT) {
-            set_buffer_frecuency(jsonBody);
+            buzzer_resource.frecuency = jsonBody["frecuency"];
             http_rest_server.send(200);
         } else {
             http_rest_server.send(404);
@@ -141,39 +144,12 @@ void put_limit() {
     }
     else {   
         if (http_rest_server.method() == HTTP_PUT) {
-            set_sensor_limit(jsonBody);
+            sensor_resource.limit = jsonBody["limit"];
             http_rest_server.send(200);
         } else {
             http_rest_server.send(404);
         }
     }
-}
-
-void turnOnAlarm() {
-  tone(buzzer_resource.gpio, buzzer_resource.frecuency);
-  digitalWrite ( led_resource.gpio, HIGH) ;
-}
-
-void turonOffAlarm() {
-  noTone(buzzer_resource.gpio);
-  digitalWrite( led_resource.gpio, LOW) ;
-}
-
-void sensor() {
-  long duration;
-  digitalWrite(sensor_resource.trigGpio, LOW);        
-  delayMicroseconds(2);              
-  digitalWrite(sensor_resource.trigGpio, HIGH);       
-  delayMicroseconds(10);             
-  digitalWrite(sensor_resource.trigGpio, LOW);        
-  duration = pulseIn(sensor_resource.echoGpio, HIGH) ;
-  sensor_resource.distance = duration / 2 / 29.1  ;           
-  if ((sensor_resource.distance < sensor_resource.limit) && (sensor_resource.status == 1)) {
-    turnOnAlarm();
-  } else {
-    turonOffAlarm();
-  }
-  delay (500) ;         
 }
 
 void config_rest_server_routing() {
@@ -190,9 +166,11 @@ void config_rest_server_routing() {
 void setup() {
    Serial.begin(115200);
 
+   pinMode(0, OUTPUT);
+   pinMode(2, INPUT); 
     init_led_resource();
-    init_buzzer_resource;
-    init_sensor_resource;
+    init_buzzer_resource();
+    init_sensor_resource();
     if (init_wifi() == WL_CONNECTED) {
         Serial.print("Connetted to ");
         Serial.print(wifi_ssid);
@@ -210,6 +188,27 @@ void setup() {
 }
 
 void loop() {
+  long duration, distance;
+  digitalWrite( 0, LOW);        
+  delayMicroseconds(2);              
+  digitalWrite( 0, HIGH);       
+  delayMicroseconds(10);             
+  digitalWrite( 0, LOW);        
+  duration = pulseIn( 2, HIGH) ;
+  distance = duration / 2 / 29.1  ;           
+  if (sensor_resource.status == 1){
+    if (distance < sensor_resource.limit) {
+      tone( 4, buzzer_resource.frecuency);
+      digitalWrite ( 16, HIGH) ;
+    }else {
+      noTone(4);
+      digitalWrite( 16, LOW) ;
+    }
+  } else {
+    noTone(4);
+    digitalWrite( 16, LOW) ;
+  }
+  Serial.println(duration);
+  Serial.println(distance);
   http_rest_server.handleClient();
-  sensor();
 }

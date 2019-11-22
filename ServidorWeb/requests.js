@@ -1,6 +1,6 @@
 const http = require('http');
 
-const ip = "0.0.0.0";
+const ip = "192.168.43.47";
 
 class Requests {
     
@@ -12,29 +12,29 @@ class Requests {
           path: '',
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': this.data.length
+            'Content-Type': 'application/json'
           }
         }
     }
 
-    put(data, path) {
-        this.options.path = path;
-        this.data = JSON.stringify(data);
-        req = http.request(this.options, res => {
-          console.log(`statusCode: ${res.statusCode}`)
-        
-          res.on('data', d => {
-            process.stdout.write(d)
-          })
+    async put(data, path) {
+      this.options.path = path;
+      this.data = JSON.stringify(data);
+      const req = http.request(this.options, res => {
+        console.log(`statusCode: ${res.statusCode}`)
+      
+        res.on('data', data => {
+          process.stdout.write(data)
         })
-        
-        req.on('error', error => {
-          console.error(error)
-        })
-        
-        req.write(data)
-        req.end()
+      });
+      
+      req.on('error', error => {
+        console.error(error)
+      });
+
+      req.write(data.toString());
+
+      req.end();
     }
 }
 

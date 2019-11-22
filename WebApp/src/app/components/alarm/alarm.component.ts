@@ -9,6 +9,13 @@ import { ServicesService } from '../../services.service';
 export class AlarmComponent implements OnInit {
 
   public url = "/sensor/status";
+  encendido = {
+    "status": 1
+  }
+
+  apagado = {
+    "status": 0
+  }
 
   constructor(public api: ServicesService) {}
 
@@ -16,11 +23,11 @@ export class AlarmComponent implements OnInit {
   }
 
   turnOn() {
-    this.api.putElement(this.url,{"status": 1});
+    this.api.putElement(this.url, this.encendido);
   }
 
   turnOff() {
-    this.api.putElement(this.url,{"status": 0});
+    this.api.putElement(this.url, this.apagado);
   }
 
 }

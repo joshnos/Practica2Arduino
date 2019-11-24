@@ -1,14 +1,21 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-const char* ssid = "NOSTAS";
-const char* password = "JOS#200197SAM-060604";
+const char* ssid = "Capresso_America";
+const char* password = "nuevasucursalPARQUELINCOLNlistapararecibirte";
 const char* clientId = "ESP8266Client";
-IPAddress mqtt_server(192, 168, 43, 174);
+IPAddress mqtt_server(192, 168, 0, 207);
 
-int pir = 1;
+int pir = 5;
 int led = 2;
-int buzzer = 3;
+int buzzer = 14;
+int frecuencia = 440;
+
+int isOn = 0;
+
+long lastMsg = 0;
+char msg[50];
+int value = 0;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -35,7 +42,7 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 }
 
-void callback(char* topic, byte* payload, unsigned int length) {
+void callback(String topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
@@ -44,19 +51,18 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   Serial.println();
 
-  if (topic == 'alarm') {
-    
+  if(topic == "alarm") {
+    if ((char)payload[0] == '1') {
+      isOn = 1;
+     }
+     if ((char)payload[0] == '0') {
+      isOn = 0;
+     }
   }
-
-  // Switch on the LED if an 1 was received as first character
-  if ((char)payload[0] == '1') {
-    digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
-    // but actually the LED is on; this is because
-    // it is acive low on the ESP-01)
-  } else {
-    digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
+  
+  if(topic == "frecuency") {
+    Serial.println();
   }
-
 }
 
 void reconnect() {
@@ -70,6 +76,7 @@ void reconnect() {
       client.publish("outTopic", "hello world");
       // ... and resubscribe
       client.subscribe("alarm");
+      client.subscribe("frecuency");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -80,12 +87,36 @@ void reconnect() {
   }
 }
 
+void alarmOn() {
+  digitalWrite (BUILTIN_LED, LOW);
+  tone(buzzer, frecuencia);
+}
+
+void alarmOff() {
+  digitalWrite (BUILTIN_LED, HIGH);
+  noTone(buzzer);
+}
+
+void alarma() {
+  int state = digitalRead(pir);
+  delay(500);                         //Check state of PIR after every half second
+  
+  if(state == HIGH){                
+    alarmOn();
+    snprintf (msg, 75, "Hay movimiento", value);
+    client.publish("alarm", msg);
+  } else {
+    alarmOff();
+  }
+}
+
 void setup() {
   
   Serial.begin(115200);
-  pinMode(pir,INPUT);
-  pinMode(led,OUTPUT);
   pinMode(buzzer,OUTPUT);
+  pinMode(BUILTIN_LED, OUTPUT);   
+  pinMode(pir,INPUT);
+  alarmOff();
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
@@ -98,7 +129,13 @@ void loop() {
   }
   client.loop();
 
-  long now = millis();
+  if(isOn == 1) {
+    alarma();
+  } else {
+    alarmOff();
+  }
+  
+  /*long now = millis();
   if (now - lastMsg > 2000) {
     lastMsg = now;
     ++value;
@@ -106,5 +143,5 @@ void loop() {
     Serial.print("Publish message: ");
     Serial.println(msg);
     client.publish("outTopic", msg);
-  }
+  }*/
 }

@@ -1,10 +1,10 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-const char* ssid = "Capresso_America";
-const char* password = "nuevasucursalPARQUELINCOLNlistapararecibirte";
+const char* ssid = "LABO16";
+const char* password = "catolica16";
 const char* clientId = "ESP8266Client";
-IPAddress mqtt_server(192, 168, 0, 207);
+IPAddress mqtt_server(192, 168, 2, 83);
 
 int pir = 5;
 int led = 2;
@@ -89,12 +89,12 @@ void reconnect() {
 
 void alarmOn() {
   digitalWrite (BUILTIN_LED, LOW);
-  tone(buzzer, frecuencia);
+  digitalWrite (buzzer, LOW);
 }
 
 void alarmOff() {
   digitalWrite (BUILTIN_LED, HIGH);
-  noTone(buzzer);
+  digitalWrite (buzzer, HIGH);
 }
 
 void alarma() {
@@ -113,9 +113,9 @@ void alarma() {
 void setup() {
   
   Serial.begin(115200);
-  pinMode(buzzer,OUTPUT);
   pinMode(BUILTIN_LED, OUTPUT);   
   pinMode(pir,INPUT);
+  pinMode(buzzer,OUTPUT);
   alarmOff();
   setup_wifi();
   client.setServer(mqtt_server, 1883);

@@ -1,10 +1,10 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-const char* ssid = "LABO16";
-const char* password = "catolica16";
-const char* clientId = "ESP8266Client";
-IPAddress mqtt_server(192, 168, 2, 83);
+const char* ssid = "NOSTAS";
+const char* password = "JOS#200197SAM-060604";
+const char* clientId = "ESP8266ClientMcu";
+IPAddress mqtt_server(192, 168, 0, 11);
 
 int pir = 5;
 int led = 2;
@@ -51,7 +51,7 @@ void callback(String topic, byte* payload, unsigned int length) {
   }
   Serial.println();
 
-  if(topic == "alarm") {
+  if(topic == "alarmIn") {
     if ((char)payload[0] == '1') {
       isOn = 1;
      }
@@ -75,7 +75,7 @@ void reconnect() {
       // Once connected, publish an announcement...
       client.publish("outTopic", "hello world");
       // ... and resubscribe
-      client.subscribe("alarm");
+      client.subscribe("alarmIn");
       client.subscribe("frecuency");
     } else {
       Serial.print("failed, rc=");
@@ -104,7 +104,7 @@ void alarma() {
   if(state == HIGH){                
     alarmOn();
     snprintf (msg, 75, "Hay movimiento", value);
-    client.publish("alarm", msg);
+    client.publish("alarmOut", msg);
   } else {
     alarmOff();
   }
@@ -134,14 +134,4 @@ void loop() {
   } else {
     alarmOff();
   }
-  
-  /*long now = millis();
-  if (now - lastMsg > 2000) {
-    lastMsg = now;
-    ++value;
-    snprintf (msg, 75, "hello world #%ld", value);
-    Serial.print("Publish message: ");
-    Serial.println(msg);
-    client.publish("outTopic", msg);
-  }*/
 }

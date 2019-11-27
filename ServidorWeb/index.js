@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
-var cors = require('cors')
+var cors = require('cors');
+const mqtt = require('./serverMqtt');
 
 app.use(cors())
 var bodyParser = require('body-parser');
@@ -15,6 +16,10 @@ app.use(bodyParser.json());
 app.use('/buzzer', buzzerRoutes);
 app.use('/led', ledRoutes);
 app.use('/sensor', sensorRoutes);
+
+mqtt.conect();
+mqtt.suscribe("alarmOut");
+mqtt.callback();
 
 app.get('/',function(req, res){
   res.send(__dirname + '/index.html');

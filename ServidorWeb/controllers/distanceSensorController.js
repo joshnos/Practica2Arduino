@@ -1,7 +1,6 @@
 const Sensor = require('../models/distanceSensor');
-const Requests = require('../requests');
+const mqtt = require('../serverMqtt');
 
-requests = new Requests();
 sensor = new Sensor(2, 0, 50, 0);
 
 exports.getSensor = function(req, res) {
@@ -15,17 +14,16 @@ exports.getSensor = function(req, res) {
 
 exports.setStatus = function(req, res) {
     sensor.changeStatus(req.body.status);
-    requests.put(req.body.status, "/alarm/on");
-    res.send('exito');
+    mqtt.publish("alarmIn", req.body.status.toString());
+    res.send({ exito: 'ok' });
 }
 
 exports.setdistance = function(req, res) {
     sensor.changedistance(req.body.distance);
-    res.send('exito');
+    res.send({ exito: 'ok' });
 }
 
 exports.setLimit = function(req, res) {
     sensor.changeLimit(req.body.limit);
-    requests.put(req.body, "/sensor/limit");
-    res.send('exito');
+    res.send({ exito: 'ok' });
 }

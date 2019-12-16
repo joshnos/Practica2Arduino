@@ -12,15 +12,18 @@ RtcDS3231<TwoWire> Rtc(Wire);
 const char* ssid = "NOSTAS";
 const char* password = "JOS#200197SAM-060604";
 const char* clientId = "ESP8266ClientMcu";
-IPAddress mqtt_server(192, 168, 0, 11);
+IPAddress mqtt_server(192, 168, 0, 13);
 
-int pir = 5;
+int pir = 0;
 int led = 2;
 int buzzer = 14;
 
 bool sensorIsOn = false;
-
 bool alarmTimeIsSet = false;
+
+bool alarmSendOne = false;
+bool turnOnSendOne = false;
+bool turnOffSendOne = false;
 
 int hhOn = 0;
 int mmOn = 0;
@@ -110,12 +113,15 @@ void callback(String topic, byte* payload, unsigned int length) {
      }
      if (payloadToString(payload, length) == "apagarAlarma") {
       sensorIsOn = false;
+      alarmSendOne = false;
      }
   }
   if(topic == "setAlarm") {
     StaticJsonDocument<256> doc;
     deserializeJson(doc, payload, length);
     alarmTimeIsSet = true;
+    turnOnSendOne = false;
+    turnOffSendOne = false;
     hhOn = doc["hourOn"].as<int>();
     mmOn = doc["minOn"].as<int>();
     
@@ -148,23 +154,27 @@ void reconnect() {
 
 void checkTime() {
   RtcDateTime now = Rtc.GetDateTime();
-  if(now.Hour() == hhOn && now.Minute() == mmOn && now.Second() == 00){
+  if(now.Hour() == hhOn && now.Minute() == mmOn && now.Second() == 0){
     printNowTime(now);
-    snprintf (msg, 75, "Sensor encendido", value);
-    client.publish("sensorOut", msg);
+    if(!turnOnSendOne) {
+      snprintf (msg, 75, "Sensor encendido", value);
+      client.publish("sensorOut", msg);
+      turnOnSendOne = true;
+    }
     sensorIsOn = true;
   }
-  if(now.Hour() == hhOff && now.Minute() == mmOff && now.Second() == 00){
+  if(now.Hour() == hhOff && now.Minute() == mmOff && now.Second() == 0){
     printNowTime(now);
-    snprintf (msg, 75, "Sensor apagado", value);
-    client.publish("sensorOut", msg);
+    if(!turnOffSendOne) {
+      snprintf (msg, 75, "Sensor apagado", value);
+      client.publish("sensorOut", msg);
+      turnOffSendOne = true;
+    }
     sensorIsOn = false;
   }
 }
 
 void alarmOn() {
-  snprintf (msg, 75, "Hay movimiento", value);
-  client.publish("alarmOut", msg);
   digitalWrite (BUILTIN_LED, LOW);
   digitalWrite (buzzer, LOW);
 }
@@ -178,8 +188,14 @@ void sensor() {
   int state = digitalRead(pir);
   delay(500);                         //Check state of PIR after every half second
   
-  if(state == HIGH){                
+  if(state == HIGH){ 
+     if(!alarmSendOne) {
+      snprintf (msg, 75, "Hay movimiento", value);
+      client.publish("alarmOut", msg); 
+      alarmSendOne = true;    
+     }         
     alarmOn();
+    delay(300);
   } else {
     alarmOff();
   }

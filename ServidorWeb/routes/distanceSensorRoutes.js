@@ -4,6 +4,7 @@ const router = express.Router();
 const controller = require('../controllers/distanceSensorController');
 
 router.get('/', controller.getSensor);
+router.put('/setAlarmTime', controller.setAlamrTime);
 router.put('/status', controller.setStatus);
 router.put('/limit', controller.setLimit);
 router.put('/distance', controller.setdistance);

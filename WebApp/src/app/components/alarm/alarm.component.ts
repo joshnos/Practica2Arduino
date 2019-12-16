@@ -10,11 +10,11 @@ export class AlarmComponent implements OnInit {
 
   public url = "/sensor/status";
   encendido = {
-    "status": 1
+    "status": "encenderAlarma"
   }
 
   apagado = {
-    "status": 0
+    "status": "apagarAlarma"
   }
 
   constructor(public api: ServicesService) {}

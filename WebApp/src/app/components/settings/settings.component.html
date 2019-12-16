@@ -3,25 +3,28 @@
       <div class="text-center col-12">
           <h2 class="tm-section-title mb-4">Configuraciones</h2>
           <p class="mb-5">
-            En esta parte puedes configurar la distancia minima para que se active la alrma y la frecuencia en la que sonara.
+            En esta parte puedes configurar la hora para que se active y se desactive la alrma automaticaamente.
           </p><br>
       </div>
       
       <div class="col-sm-12 col-md-6">
-          <h3>Frecuencia: </h3>
-          <input class="tm-input" type="number" [(ngModel)]="frecuency"><br />
-          <button class="btn tm-btn-submit" (click)="setFrecuency()">Guardar</button>
+        <h3>Hora de encendido: </h3>
+        <div class='input-group date' id='datetimepicker3'>
+          <input type='time' class="form-control" [(ngModel)]="timeOn"/>
+        </div>
       </div>
-      
+
       <div class="col-sm-12 col-md-6">
-          <h3>Distancia minima: </h3>
-          <input class="tm-input" type="number" [(ngModel)]="limit"><br />
-          <button class="btn tm-btn-submit" (click)="setLimit()">Guardar</button>
-      
+        <h3>Hora de apagado: </h3>
+        <div class='input-group date' id='datetimepicker3'>
+          <input type='time' class="form-control" [(ngModel)]="timeOff"/>
+        </div>
       </div>
-      
-      
-  </div><!-- row ending -->
+      <br/><br/><br/><br/>
+      <div class="col-sm-12 col-md-6">
+        <button class="btn tm-btn-submit" (click)="setTime()">Guardar</button>
+      </div>
+  </div>
         
 </div>
 

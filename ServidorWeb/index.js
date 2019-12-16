@@ -19,6 +19,7 @@ app.use('/sensor', sensorRoutes);
 
 mqtt.conect();
 mqtt.suscribe("alarmOut");
+mqtt.suscribe("sensorOut");
 mqtt.callback();
 
 app.get('/',function(req, res){

@@ -8,22 +8,30 @@ import { ServicesService } from '../../services.service';
 })
 export class SettingsComponent implements OnInit {
 
-  frecuencyUrl = "/buzzer/frecuency";
-  limitUrl = "/sensor/limit";
-  frecuency = 0;
-  limit = 0;
+  alarmTime = "/sensor/setAlarmTime";
+  timeOn;
+  timeOff;
 
   constructor(public api: ServicesService) { }
 
   ngOnInit() {
   }
 
-  setFrecuency() {
-    this.api.putElement(this.frecuencyUrl, {"frecuency": this.frecuency});
+  createObject() {
+    let timeOnTokens = this.timeOn.split(':');
+    let timeOffTokens = this.timeOff.split(':');
+    return {
+      'hourOn': Number(timeOnTokens[0]),
+      'minOn': Number(timeOnTokens[1]),
+      'hourOff': Number(timeOffTokens[0]),
+      'minOff': Number(timeOffTokens[1])
+    }
   }
 
-  setLimit() {
-    this.api.putElement(this.limitUrl, {"limit": this.limit});
+  setTime() {
+    console.log(this.timeOn);
+    console.log(this.timeOff);
+    this.api.putElement(this.alarmTime, this.createObject());
   }
 
 }

@@ -1,5 +1,5 @@
 const Buzzer = require('../models/buzzer');
-const Requests = require('../requests');
+const Requests = require('../servers/requests');
 
 requests = new Requests();
 buzzer = new Buzzer(1, 0, 440);

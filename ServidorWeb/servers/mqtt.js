@@ -1,5 +1,6 @@
 var mqtt = require('mqtt');
 var client = mqtt.connect("mqtt://192.168.0.13", {clientId:"clientWebApp"});
+var email = require('./email');
 
 exports.conect = function() {
     client.on("connect",function(){	
@@ -25,8 +26,21 @@ exports.suscribe = function(topic) {
 
 exports.callback = function() {
     client.on('message',function(topic, message, packet){
-	    console.log("message is "+ message);
-	    console.log("topic is "+ topic);
+        console.log(topic + " " + message);
+        let msg = {
+            subject: message,
+            text: ""
+        };
+	    if (topic.includes("alarmOut")) {
+            msg.text = "El sensor detecto movimiento, ve a la pagina de la aplicacion para apagar la alarma";
+        }
+        if (topic.includes("sensorOut")) {
+            if(message.includes("encendido"))
+                msg.text = "El sensor se encendio a la hora previamente programada";
+            if(message.includes("apagado"))
+                msg.text = "El sensor se apago a la hora previamente programada";
+        }
+        email.sendEmail(msg);
     });
 }
 

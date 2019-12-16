@@ -1,7 +1,8 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
 const express = require('express');
 const app = express();
 var cors = require('cors');
-const mqtt = require('./serverMqtt');
+const mqtt = require('./servers/mqtt');
 
 app.use(cors())
 var bodyParser = require('body-parser');

@@ -1,5 +1,5 @@
 const Sensor = require('../models/distanceSensor');
-const mqtt = require('../serverMqtt');
+const mqtt = require('../servers/mqtt');
 
 sensor = new Sensor(2, 0, 50, 0, "");
 
